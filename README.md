@@ -42,6 +42,27 @@ On releases v0.8.4 and above, kubemacpool is set to apply on pods/vms that resid
 - `mutatepods.kubemacpool.io=allocateForAll` - to opt in pods mac allocation in your namespace
 - `mutatevirtualmachines.kubemacpool.io=allocateForAll` - to opt in vms mac allocation in your namespace
 
+#### How to enable/disable kubemacpool for a namespace 
+
+Kubemacpool is disabled by default on a new namespace.
+To enable kubemacpool on a specific namespace:
+```bash
+kubectl label namespace user-namespace-opting-in-pods-vms mutatepods.kubemacpool.io=allocateForAll mutatevirtualmachines.kubemacpool.io=allocateForAll
+namespace/user-namespace-opting-in-pods-vms labeled
+```
+
+To disable kubemacpool in a namespace:
+```bash
+kubectl label namespace user-namespace-opting-in-pods-vms mutatepods.kubemacpool.io- mutatevirtualmachines.kubemacpool.io-
+namespace/user-namespace-opting-in-pods-vms labeled
+```
+
+**note:** if the kubemacpool's mutatingwebhookconfiguration `kubemacpool-mutator` namespace-selector value per vm/pod is set to `allocateForAll`, then you can also opt-out your namespace by setting the label value to `disabled`:
+```bash
+kubectl label namespace user-namespace-opting-in-pods-vms --overwrite mutatepods.kubemacpool.io=disable mutatevirtualmachines.kubemacpool.io=disable
+namespace/user-namespace-opting-in-pods-vms labeled
+```
+
 #### Opt-in Example
 
 ```bash
