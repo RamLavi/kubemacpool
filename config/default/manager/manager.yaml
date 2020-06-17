@@ -30,6 +30,8 @@ metadata:
     controller-tools.k8s.io: "1.0"
 spec:
   replicas: 2
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       control-plane: mac-controller-manager
