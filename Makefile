@@ -20,6 +20,9 @@ CONTROLLER_GEN := GOFLAGS=-mod=mod $(GO) run sigs.k8s.io/controller-tools/cmd/co
 GOFMT := GOFLAGS=-mod=mod $(GO)fmt
 VET := GOFLAGS=-mod=mod $(GO) vet
 DEEPCOPY_GEN := GOFLAGS=-mod=mod $(GO) install k8s.io/code-generator/cmd/deepcopy-gen@latest
+ENVTEST := GOFLAGS=-mod=mod $(GO) install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+# ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
+ENVTEST_K8S_VERSION = 1.30.0
 GO_VERSION = $(shell hack/go-version.sh)
 
 E2E_TEST_EXTRA_ARGS ?=
@@ -33,9 +36,12 @@ all: generate
 $(GO):
 	hack/install-go.sh $(BIN_DIR) > /dev/null
 
+envtest: $(GO)
+	$(ENVTEST)
+
 # Run tests
-test: $(GO)
-	$(GO) test ./pkg/... ./cmd/... -coverprofile cover.out
+test: $(GO) envtest
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(BIN_DIR) -p path)" $(GO) test ./pkg/... ./cmd/... -coverprofile cover.out
 
 functest: $(GO)
 	GO=$(GO) TEST_ARGS="$(E2E_TEST_ARGS)" ./hack/functest.sh
@@ -133,4 +139,5 @@ vendor: $(GO)
 	push \
 	cluster-up \
 	cluster-down \
+	envtest \
 	cluster-sync
