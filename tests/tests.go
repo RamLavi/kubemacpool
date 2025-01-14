@@ -91,11 +91,11 @@ func removeTestNamespaces() {
 		Should(BeTrue(), "Namespace %s haven't been deleted within the given timeout", TestNamespace)
 }
 
-func CreateVmObject(namespace string, running bool, interfaces []kubevirtv1.Interface, networks []kubevirtv1.Network) *kubevirtv1.VirtualMachine {
+func CreateVmObject(namespace string, strategy kubevirtv1.VirtualMachineRunStrategy, interfaces []kubevirtv1.Interface, networks []kubevirtv1.Network) *kubevirtv1.VirtualMachine {
 	vm := getVMCirros()
 	vm.Name = randName("testvm")
 	vm.Namespace = namespace
-	vm.Spec.Running = &running
+	vm.Spec.RunStrategy = &strategy
 	vm.Spec.Template.Spec.Domain.Devices.Interfaces = interfaces
 	vm.Spec.Template.Spec.Networks = networks
 
