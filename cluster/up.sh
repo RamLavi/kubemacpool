@@ -26,7 +26,7 @@ CNAO_VERSION=v0.76.1
 export KUBEVIRT_DEPLOY_PROMETHEUS=true
 
 #use kubevirt latest z stream release
-KUBEVIRT_VERSION="v1.7.0"
+KUBEVIRT_VERSION="v1.9.0"
 cluster::install
 
 if [[ "$KUBEVIRT_PROVIDER" != external ]]; then
@@ -63,6 +63,11 @@ until ./cluster/kubectl.sh -n kubevirt get kv kubevirt; do
     echo "waiting for KubeVirt CR"
     sleep 1
 done
+
+# ImageVolume (Beta, on by default since v1.7.0) breaks container-disk initContainers
+# in CI environments that don't need this feature
+./cluster/kubectl.sh patch kubevirt kubevirt -n kubevirt --type=merge \
+  -p '{"spec":{"configuration":{"developerConfiguration":{"disabledFeatureGates":["ImageVolume"]}}}}'
 
 ./cluster/kubectl.sh wait -n kubevirt kv kubevirt --for condition=Available --timeout 360s || (echo "KubeVirt not ready in time" && exit 1)
 
