@@ -1,25 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "baseBranches": ["release-0.45", "release-0.44", "release-0.43", "release-0.42", "release-0.41", "release-0.39" ,"main"],
+  "baseBranchPatterns": ["main"],
+  "enabledManagers": ["gomod"],
+  "branchTopic": "{{{depNameSanitized}}}-{{{newVersion}}}",
+  "rebaseWhen": "conflicted",
   "prConcurrentLimit": 3,
+  "prCreation": "approval",
   "lockFileMaintenance": {
     "enabled": false
   },
-  "postUpdateOptions": ["gomodTidy"],
+  "postUpgradeTasks": {
+    "commands": ["make vendor"],
+    "fileFilters": ["go.mod", "go.sum", "vendor/**"]
+  },
   "labels": ["release-note-none"],
   "extends": [":gitSignOff"],
-  "packageRules": [
-    {
-      "groupName": "all dependencies",
-      "groupSlug": "all",
-      "enabled": false,
-      "matchPackageNames": [
-        "*"
-      ]
-    }
-  ],
   "vulnerabilityAlerts": {
-    "enabled": true
+    "enabled": true,
+    "additionalBranchPrefix": "security/",
+    "prCreation": "approval",
+    "recreateWhen": "always"
   },
   "osvVulnerabilityAlerts": true,
   "assigneesFromCodeOwners": true,
